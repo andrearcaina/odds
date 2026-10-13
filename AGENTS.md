@@ -40,22 +40,9 @@ gofmt -w cmd internal
 
 Local configuration belongs in `.env`, which is ignored by Git. Keep `.env.example` free of local URLs and credentials.
 
-## CI and containers
-
-GitHub Actions follows the same straightforward checks used locally:
-
-- `make fmt-check`
-- `make tidy`
-- `make test`
-- `make vet`
-- `make build`
-- `make clean`
-
-Keep CI focused on formatting, dependencies, tests, vetting, and building. Do not start the long-running application server as part of the normal CI job.
+## Containers
 
 The `Dockerfile` is for the production image only. Local development should use Go and the Makefile directly.
-
-The `push-image.yml` workflow publishes the production image to GHCR only after CI succeeds on `main`.
 
 ## Implementation guidelines
 

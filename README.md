@@ -42,7 +42,7 @@ make build
 make check
 ```
 
-## Production container and CI
+## Production container
 
 The `Dockerfile` is for the production build only. Local development only requires Go and the Makefile commands above. The production image uses a multi-stage build and runs the compiled server in a minimal non-root image:
 
@@ -50,8 +50,6 @@ The `Dockerfile` is for the production build only. Local development only requir
 docker build -t draftkings-odds .
 docker run --env-file .env -p 8080:8080 draftkings-odds
 ```
-
-GitHub Actions runs the formatting check, module tidy check, tests, vet, and build. After CI succeeds on `main`, a separate workflow builds the production image and publishes it to GHCR with both the commit SHA and `latest` tags.
 
 `.env` is used for local development and is ignored by Git. Production environments can provide the same values as regular environment variables.
 
