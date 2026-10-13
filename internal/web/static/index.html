@@ -107,7 +107,7 @@
                                             class="price"
                                             :class="{'changed': price.changed}"
                                             ><span
-                                                x-text="price.label + ' ' + price.line"
+                                                x-text="totalLabel(price.label) + ' ' + price.line"
                                             ></span>
                                             <span
                                                 class="line"
@@ -116,7 +116,7 @@
                                             ><small
                                                 class="previous"
                                                 x-show="price.previousOdds"
-                                                x-text="previousPrice(price)"
+                                                x-text="previousPrice(price, 'total')"
                                             ></small></span
                                     ></template>
                                 </td>

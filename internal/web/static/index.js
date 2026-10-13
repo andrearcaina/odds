@@ -85,14 +85,22 @@ window.oddsApp = function () {
             return value == null ? "" : (value > 0 ? "+" : "") + value;
         },
 
-        previousPrice(price) {
+        previousPrice(price, market = "") {
             if (!price.previousOdds) return "";
 
-            const line =
-                price.previousLine == null
-                    ? ""
-                    : ` ${this.signed(price.previousLine)}`;
-            return `was ${price.previousOdds}${line}`;
+            if (price.previousLine == null) {
+                return `was ${price.previousOdds}`;
+            }
+
+            if (market === "total") {
+                return `was ${this.totalLabel(price.label)} ${Math.abs(price.previousLine)} ${price.previousOdds}`;
+            }
+
+            return `was ${price.previousOdds} ${this.signed(price.previousLine)}`;
+        },
+
+        totalLabel(label) {
+            return label === "Over" ? "O" : label === "Under" ? "U" : label;
         },
 
         isStale() {
