@@ -37,9 +37,13 @@ Then open <http://localhost:8080>.
 Other useful commands:
 
 ```sh
-make test
-make build
-make check
+make test        # runs all test files
+make fmt         # formats all Go files
+make fmt-check   # checks formatting
+make build       # builds the server binary
+make vet         # runs go vet on all files
+make tidy        # runs go mod tidy
+make check       # runs fmt-check, tidy, test, vet build
 ```
 
 ## Production container
@@ -55,15 +59,17 @@ docker run --env-file .env -p 8080:8080 draftkings-odds
 
 ## How it works
 
-DraftKings returns a complete snapshot containing events, markets, and selections. The Go client joins those records together using their event and market IDs, keeps upcoming NFL games, and selects only the Moneyline, Spread, and Total markets.
+DraftKings provides a full JSON snapshot of events, markets, and selections. The Go client joins these records by ID, keeps upcoming NFL games, and selects the main Moneyline, Spread, and Total markets. The normalized result is stored in memory and served through `/api/odds`.
 
-Spread and Total selections use DraftKings’ `MainPointLine` tag so alternate lines are not displayed. The normalized result is stored in an in-memory cache and served to the frontend through `/api/odds`.
+The data flow is:
 
-The server refreshes DraftKings on a timer, and the browser polls the Go server at the same interval. The API only serves the cached snapshot; it does not trigger a new DraftKings request.
+```plaintext
+DraftKings feed -> validate and normalize -> cache snapshot -> browser polls /api/odds every few seconds -> display in table
+```
 
-When a price changes between successful snapshots, the API includes the previous price and the frontend highlights the current value.
+The server refreshes the feed on a timer, while the browser uses short polling to read the cached snapshot. All users read the same snapshot, so their requests do not create extra DraftKings requests. With one server instance, only its background loop polls DraftKings. Price changes include the previous value so the frontend can highlight movement.
 
-Network errors, `429` responses, and `5xx` responses are retried up to two additional times with a short backoff. If all attempts fail, or DraftKings returns data the client cannot parse, the last successful snapshot remains available and the UI marks it as stale.
+Transient network errors, `429` responses, and `5xx` responses are retried. If refreshes fail, the last successful snapshot remains visible and is marked stale.
 
 ## Why this approach
 
@@ -71,16 +77,16 @@ The DraftKings page already exposes structured JSON, so using that feed is more 
 
 The frontend uses plain HTML, CSS, and Alpine.js. That keeps the page small while still providing reactive updates for the table, loading state, and stale-data indicator.
 
-## Freshness
+## How updated is the data
 
-With `REFRESH_INTERVAL=5`, the displayed odds are normally no more than about five seconds old, plus request time. The page shows the snapshot age and upstream fetch duration, and marks the snapshot stale after two polling intervals. Five seconds is a practical middle ground: the odds stay fresh while one instance makes about twelve upstream requests per minute instead of constantly requesting DraftKings. The interval can be changed.
+With `REFRESH_INTERVAL=5`, the displayed odds are normally no more than about five seconds old, plus request time. I chose five seconds because it keeps the odds reasonably fresh without constantly requesting DraftKings, which means one server instance makes about twelve upstream requests per minute. The page shows the snapshot age and fetch duration, and marks the data stale after two missed polling intervals.
 
-This is polling rather than a true streaming connection, since the endpoint does not provide a public source-change timestamp or a documented fixed rate limit.
+## Hosting
 
-The public odds response does not require a login, token, or persistent cookie. Geo-restrictions, bot protection, and rate limits depend on the hosting location and DraftKings environment, so the application reports upstream failures and keeps the last valid data visible instead of hiding the problem.
+I initially deployed the app on Render, but DraftKings blocked its Virginia datacenter IP and returned `403` responses. Render did not offer a Canadian region for this deployment, so I moved the app to Fly.io in Toronto (`yyz`), where the DraftKings feed works successfully.
 
 ## Extending the application
 
-Additional sportsbooks could be supported by giving each sportsbook its own client and normalizer while keeping the same internal game, market, and price model. A second league could use the same structure with a different league configuration and endpoint.
+If I added another sportsbook, I would give it its own client and normalizer while keeping the same internal game, market, and price model. If I added another league, I would reuse the same structure with a different league configuration and endpoint.
 
-AI or developer tooling could help identify upstream schema changes, generate mapping tests, and flag missing markets. It should not be responsible for parsing the known response format at runtime.
+I could use AI or other developer tools to identify upstream schema changes, generate mapping tests, and flag missing markets.
