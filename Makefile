@@ -1,6 +1,7 @@
 .PHONY: build run test fmt fmt-check vet tidy check clean
 
 build:
+	mkdir -p bin
 	go build -o bin/odds ./cmd/server
 
 run: build
