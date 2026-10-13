@@ -103,11 +103,7 @@ func (c *Client) refreshUpstream(ctx context.Context) {
 	}
 
 	if response.StatusCode() < 200 || response.StatusCode() >= 300 {
-		body := response.String()
-		if len(body) > 500 {
-			body = body[:500] + "..."
-		}
-		c.fail(response.StatusCode(), fmt.Errorf("upstream returned HTTP %d: %s", response.StatusCode(), body))
+		c.fail(response.StatusCode(), fmt.Errorf("DraftKings feed unavailable (HTTP %d)", response.StatusCode()))
 		return
 	}
 

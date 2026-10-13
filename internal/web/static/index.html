@@ -51,9 +51,9 @@
                     >Stale data</span
                 >
                 <span
-                    x-text="data.fetchedAt ? 'Updated ' + formatTime(data.fetchedAt) : 'Waiting for data'"
+                    x-text="hasSnapshot() ? 'Updated ' + formatTime(data.fetchedAt) : 'Checked ' + formatTime(now)"
                 ></span>
-                <span x-show="data.fetchedAt" x-text="snapshotAge()"></span>
+                <span x-show="hasSnapshot()" x-text="snapshotAge()"></span>
                 <span
                     x-show="data.fetchDurationMs"
                     x-text="'DraftKings fetch ' + data.fetchDurationMs + 'ms'"

@@ -75,6 +75,13 @@ window.oddsApp = function () {
                 : "";
         },
 
+        hasSnapshot() {
+            if (!this.data.fetchedAt) return false;
+
+            const timestamp = new Date(this.data.fetchedAt).getTime();
+            return Number.isFinite(timestamp) && timestamp > 0;
+        },
+
         signed(value) {
             return value == null ? "" : (value > 0 ? "+" : "") + value;
         },
@@ -90,7 +97,7 @@ window.oddsApp = function () {
         },
 
         isStale() {
-            if (this.data.stale || !this.data.fetchedAt) return true;
+            if (this.data.stale || !this.hasSnapshot()) return true;
 
             const interval = Number(document.body.dataset.refreshIntervalMs);
             const age = this.now - new Date(this.data.fetchedAt).getTime();
@@ -98,7 +105,7 @@ window.oddsApp = function () {
         },
 
         snapshotAge() {
-            if (!this.data.fetchedAt) return "";
+            if (!this.hasSnapshot()) return "";
 
             const age = Math.max(
                 0,
