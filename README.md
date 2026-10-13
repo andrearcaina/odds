@@ -43,6 +43,17 @@ make build
 make check
 ```
 
+## Production container and CI
+
+The `Dockerfile` is for the production build only. Local development only requires Go and the Makefile commands above. The production image uses a multi-stage build and runs the compiled server in a minimal non-root image:
+
+```sh
+docker build -t draftkings-odds .
+docker run --env-file .env -p 8080:8080 draftkings-odds
+```
+
+GitHub Actions runs the formatting check, module tidy check, tests, vet, and build.
+
 `.env` is used for local development and is ignored by Git. Production environments can provide the same values as regular environment variables.
 
 ## How it works
@@ -53,7 +64,7 @@ Spread and Total selections use DraftKings’ `MainPointLine` tag so alternate l
 
 The server refreshes DraftKings on a timer. The browser polls the Go server at the same interval, and the Refresh button can trigger an immediate update. Multiple refreshes happening at the same time are coalesced into one upstream request.
 
-When a price changes between successful snapshots, the API includes the previous price and the frontend highlights the current value. The page also shows the snapshot age and the time spent fetching the upstream response.
+When a price changes between successful snapshots, the API includes the previous price and the frontend highlights the current value.
 
 Network errors, `429` responses, and `5xx` responses are retried up to two additional times with a short backoff. If all attempts fail, or DraftKings returns data the client cannot parse, the last successful snapshot remains available and the UI marks it as stale.
 
@@ -61,15 +72,13 @@ Network errors, `429` responses, and `5xx` responses are retried up to two addit
 
 The DraftKings page already exposes structured JSON, so using that feed is more reliable than scraping rendered HTML. It also provides the relationships needed to map each game to its markets and selections.
 
-Fetching through one Go process means the application does not make a separate DraftKings request for every visitor. Visitors receive the same cached snapshot, while the client handles polling, failures, and request coalescing in one place.
-
 The frontend uses plain HTML, CSS, and Alpine.js. That keeps the page small while still providing reactive updates for the table, refresh button, loading state, and stale-data indicator.
 
 ## Freshness
 
-With `REFRESH_INTERVAL=5`, the displayed odds are normally no more than about five seconds old, plus the time required for the DraftKings request and the browser request. The page displays the age of the current snapshot and the upstream fetch duration. This is polling rather than a true streaming connection, since the endpoint does not provide a public source-change timestamp or a documented fixed rate limit.
+With `REFRESH_INTERVAL=5`, the displayed odds are normally no more than about five seconds old, plus request time. The page shows the snapshot age and upstream fetch duration. Five seconds is a practical middle ground: the odds stay fresh while one instance makes about twelve upstream requests per minute instead of constantly requesting DraftKings. The interval can be changed, and request coalescing prevents several users refreshing at the same time from creating identical requests.
 
-One running instance makes approximately twelve upstream requests per minute at a five-second interval. Visitors do not each create their own DraftKings request because they share the server-side snapshot.
+This is polling rather than a true streaming connection, since the endpoint does not provide a public source-change timestamp or a documented fixed rate limit.
 
 The public odds response does not require a login, token, or persistent cookie. Geo-restrictions, bot protection, and rate limits depend on the hosting location and DraftKings environment, so the application reports upstream failures and keeps the last valid data visible instead of hiding the problem.
 

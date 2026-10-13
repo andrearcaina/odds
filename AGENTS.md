@@ -14,8 +14,6 @@ The application is limited to:
 
 Player props, alternate lines, and other leagues are outside the current scope.
 
-The page should make it clear when the data is stale. It currently highlights prices that changed since the previous successful snapshot and displays snapshot age and upstream fetch duration.
-
 ## Project layout
 
 - `cmd/server` starts the application and handles shutdown.
@@ -30,10 +28,6 @@ DraftKings provides a full snapshot with `events`, `markets`, and `selections`. 
 
 ```sh
 make run
-make test
-make build
-make check
-make tidy
 ```
 
 Direct Go commands are also fine:
@@ -46,16 +40,28 @@ gofmt -w cmd internal
 
 Local configuration belongs in `.env`, which is ignored by Git. Keep `.env.example` free of local URLs and credentials.
 
+## CI and containers
+
+GitHub Actions follows the same straightforward checks used locally:
+
+- `make fmt-check`
+- `make tidy`
+- `make test`
+- `make vet`
+- `make build`
+- `make clean`
+
+Keep CI focused on formatting, dependencies, tests, vetting, and building. Do not start the long-running application server as part of the normal CI job.
+
+The `Dockerfile` is for the production image only. Local development should use Go and the Makefile directly.
+
 ## Implementation guidelines
 
 - Keep the runtime deterministic. Do not add an AI or agent framework to the application.
 - Do not hard-code DraftKings cookies, tokens, or session state.
-- Treat `403`, `429`, timeouts, malformed JSON, empty responses, and schema changes as feed failures.
-- Preserve the last successful snapshot and mark it stale when a refresh fails.
+- Treat `403`, `429`, timeouts, malformed JSON, empty responses, and schema changes as feed failures. Preserve the last successful snapshot and mark it stale when a refresh ultimately fails.
 - Keep DraftKings polling centralized in the client.
 - Keep caching and request coalescing in the DraftKings client rather than in HTTP handlers.
-- Retry network errors, `429` responses, and `5xx` responses with a bounded backoff.
+- Retry only transient network errors, `429` responses, and `5xx` responses with a bounded backoff. Do not retry `403` responses or invalid payloads.
 - Update tests when the DraftKings response mapping changes.
 - Prefer small, focused changes over introducing unnecessary dependencies or frontend infrastructure.
-
-AI and other tooling can be used during development for tasks such as detecting schema changes or generating mapping tests, but the production parser should remain explicit and predictable.

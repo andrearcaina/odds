@@ -130,7 +130,10 @@ func shouldRetry(response *resty.Response, err error) bool {
 		return false
 	}
 
-	status := response.StatusCode()
+	return retryableStatus(response.StatusCode())
+}
+
+func retryableStatus(status int) bool {
 	return status == 429 || status >= 500
 }
 

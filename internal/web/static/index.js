@@ -8,9 +8,20 @@ window.oddsApp = function () {
 
         init() {
             this.load();
-            const interval = Number(document.body.dataset.refreshIntervalMs);
-            this.timer = setInterval(() => this.load(), interval);
             this.clockTimer = setInterval(() => (this.now = Date.now()), 1000);
+        },
+
+        scheduleNextLoad() {
+            const interval = Number(document.body.dataset.refreshIntervalMs);
+            let delay = interval;
+
+            if (this.data.fetchedAt) {
+                const age = this.now - new Date(this.data.fetchedAt).getTime();
+                delay = Math.max(1000, interval - age);
+            }
+
+            clearTimeout(this.timer);
+            this.timer = setTimeout(() => this.load(), delay);
         },
 
         async load(manualRefresh = false) {
@@ -37,6 +48,7 @@ window.oddsApp = function () {
                 };
             } finally {
                 this.loading = false;
+                this.scheduleNextLoad();
             }
         },
 
@@ -62,14 +74,22 @@ window.oddsApp = function () {
         previousPrice(price) {
             if (!price.changed) return "";
 
-            const line = price.previousLine == null ? "" : ` ${this.signed(price.previousLine)}`;
+            const line =
+                price.previousLine == null
+                    ? ""
+                    : ` ${this.signed(price.previousLine)}`;
             return `was ${price.previousOdds}${line}`;
         },
 
         snapshotAge() {
             if (!this.data.fetchedAt) return "";
 
-            const age = Math.max(0, Math.floor((this.now - new Date(this.data.fetchedAt).getTime()) / 1000));
+            const age = Math.max(
+                0,
+                Math.floor(
+                    (this.now - new Date(this.data.fetchedAt).getTime()) / 1000,
+                ),
+            );
             return `${age}s old`;
         },
     };
