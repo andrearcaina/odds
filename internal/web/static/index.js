@@ -32,16 +32,15 @@ window.oddsApp = function () {
             this.timer = setTimeout(() => this.load(), delay);
         },
 
-        async load(manualRefresh = false) {
+        async load() {
             if (this.loading) return;
 
             this.loading = true;
 
             try {
-                const response = await fetch(
-                    "/api/odds" + (manualRefresh ? "?refresh=1" : ""),
-                    { cache: "no-store" },
-                );
+                const response = await fetch("/api/odds", {
+                    cache: "no-store",
+                });
 
                 if (!response.ok) {
                     throw new Error("App API returned HTTP " + response.status);

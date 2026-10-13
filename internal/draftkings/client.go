@@ -57,10 +57,6 @@ func (c *Client) Snapshot() Snapshot {
 	return c.cache.Snapshot()
 }
 
-func (c *Client) Refresh(ctx context.Context) {
-	c.refresh(ctx)
-}
-
 func (c *Client) refresh(ctx context.Context) {
 	_, _, _ = c.refreshGroup.Do("latest", func() (any, error) {
 		c.refreshUpstream(ctx)

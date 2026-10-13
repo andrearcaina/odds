@@ -28,20 +28,6 @@
                         in Toronto time.
                     </p>
                 </div>
-                <button
-                    type="button"
-                    @click="load(true)"
-                    :disabled="loading"
-                    :class="{'loading': loading}"
-                >
-                    <span x-text="loading ? 'Updating' : 'Refresh'"
-                        >Refresh</span
-                    ><span
-                        class="spinner"
-                        x-show="loading"
-                        aria-hidden="true"
-                    ></span>
-                </button>
             </header>
             <div class="meta">
                 <span
