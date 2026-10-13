@@ -1,0 +1,170 @@
+:root {
+    color-scheme: dark;
+    font-family: Inter, system-ui, sans-serif;
+    background: #101216;
+    color: #f4f5f7;
+}
+
+body {
+    margin: 0;
+    padding: 32px 18px;
+}
+
+main {
+    max-width: 1100px;
+    margin: auto;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+h1 {
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    letter-spacing: -0.06em;
+}
+
+p {
+    color: #9ea5b1;
+}
+
+button {
+    min-width: 96px;
+    background: #d6ff43;
+    color: #101216;
+    border: 0;
+    border-radius: 999px;
+    padding: 11px 17px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(214, 255, 67, 0.14);
+    transition:
+        transform 0.16s ease,
+        background 0.16s ease,
+        box-shadow 0.16s ease;
+}
+
+button:hover {
+    background: #e2ff75;
+    transform: scale(1.05);
+    box-shadow: 0 10px 28px rgba(214, 255, 67, 0.22);
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+button:disabled {
+    cursor: wait;
+    opacity: 0.8;
+}
+
+button.loading {
+    box-shadow:
+        0 0 0 4px rgba(214, 255, 67, 0.12),
+        0 8px 24px rgba(214, 255, 67, 0.18);
+}
+
+.spinner {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    margin-left: 6px;
+    border: 2px solid rgba(16, 18, 22, 0.3);
+    border-top-color: #101216;
+    border-radius: 50%;
+    vertical-align: -1px;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    color: #aeb5c1;
+    font-size: 0.9rem;
+}
+
+.pill {
+    border: 1px solid #39404c;
+    border-radius: 999px;
+    padding: 6px 10px;
+}
+
+.ok {
+    color: #d6ff43;
+}
+
+.stale {
+    color: #ffb86b;
+}
+
+.card {
+    overflow: auto;
+    border: 1px solid #2c313a;
+    border-radius: 18px;
+    background: #171a20;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 760px;
+}
+
+th,
+td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid #2c313a;
+}
+
+th {
+    color: #858d99;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+}
+
+tr:last-child td {
+    border: 0;
+}
+
+.game {
+    font-weight: 800;
+}
+
+.time {
+    color: #858d99;
+    font-size: 0.82rem;
+    margin-top: 5px;
+}
+
+.price {
+    display: block;
+    white-space: nowrap;
+    margin: 5px 0;
+}
+
+.line {
+    color: #d6ff43;
+    font-variant-numeric: tabular-nums;
+}
+
+.empty {
+    padding: 40px;
+    text-align: center;
+    color: #9ea5b1;
+}

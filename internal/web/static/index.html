@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>NFL odds | DraftKings</title>
+        <link rel="stylesheet" href="/static/index.css" />
+        <script>
+            __APP_JS__;
+        </script>
+        <script
+            defer
+            src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+        ></script>
+    </head>
+    <body
+        x-data="oddsApp()"
+        x-init="init()"
+        data-refresh-interval-ms="__REFRESH_INTERVAL_MS__"
+    >
+        <main>
+            <header>
+                <div>
+                    <p>DraftKings · Ontario</p>
+                    <h1>NFL odds</h1>
+                    <p>
+                        Main markets only: moneyline, spread, total. Times shown
+                        in Toronto time.
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    @click="load(true)"
+                    :disabled="loading"
+                    :class="{'loading': loading}"
+                >
+                    <span x-text="loading ? 'Updating' : 'Refresh'"
+                        >Refresh</span
+                    ><span
+                        class="spinner"
+                        x-show="loading"
+                        aria-hidden="true"
+                    ></span>
+                </button>
+            </header>
+            <div class="meta">
+                <span
+                    class="pill"
+                    :class="data.stale ? 'stale' : 'ok'"
+                    x-text="data.stale ? 'Stale data' : 'Live snapshot'"
+                    >Stale data</span
+                >
+                <span
+                    x-text="data.fetchedAt ? 'Updated ' + formatTime(data.fetchedAt) : 'Waiting for data'"
+                ></span>
+                <span x-show="data.error" x-text="data.error"></span>
+            </div>
+            <div class="card" style="margin-top: 20px">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Game</th>
+                            <th>Moneyline</th>
+                            <th>Spread</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="game in data.games" :key="game.id">
+                            <tr>
+                                <td>
+                                    <div class="game" x-text="game.name"></div>
+                                    <div
+                                        class="time"
+                                        x-text="formatTime(game.startTime)"
+                                    ></div>
+                                </td>
+                                <td>
+                                    <template x-for="price in game.moneyline"
+                                        ><span class="price"
+                                            ><span x-text="price.label"></span>
+                                            <span
+                                                class="line"
+                                                x-text="price.odds"
+                                            ></span></span
+                                    ></template>
+                                </td>
+                                <td>
+                                    <template x-for="price in game.spread"
+                                        ><span class="price"
+                                            ><span
+                                                x-text="price.label + ' ' + signed(price.line)"
+                                            ></span>
+                                            <span
+                                                class="line"
+                                                x-text="price.odds"
+                                            ></span></span
+                                    ></template>
+                                </td>
+                                <td>
+                                    <template x-for="price in game.total"
+                                        ><span class="price"
+                                            ><span
+                                                x-text="price.label + ' ' + price.line"
+                                            ></span>
+                                            <span
+                                                class="line"
+                                                x-text="price.odds"
+                                            ></span></span
+                                    ></template>
+                                </td>
+                            </tr>
+                        </template>
+                        <tr x-show="!loading && data.games.length === 0">
+                            <td
+                                colspan="4"
+                                class="empty"
+                                x-text="data.stale ? 'No current NFL odds are available.' : 'No upcoming NFL odds are available right now.'"
+                            >
+                                Loading NFL odds…
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </body>
+</html>
