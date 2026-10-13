@@ -38,8 +38,6 @@ go test ./...
 gofmt -w cmd internal
 ```
 
-Local configuration belongs in `.env`, which is ignored by Git. Keep `.env.example` free of local URLs and credentials.
-
 ## Containers
 
 The `Dockerfile` is for the production image only. Local development should use Go and the Makefile directly.
