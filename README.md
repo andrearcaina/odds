@@ -53,7 +53,9 @@ Spread and Total selections use DraftKings’ `MainPointLine` tag so alternate l
 
 The server refreshes DraftKings on a timer. The browser polls the Go server at the same interval, and the Refresh button can trigger an immediate update. Multiple refreshes happening at the same time are coalesced into one upstream request.
 
-If DraftKings is unavailable, times out, rate-limits the request, or returns data the client cannot parse, the last successful snapshot remains available and the UI marks it as stale.
+When a price changes between successful snapshots, the API includes the previous price and the frontend highlights the current value. The page also shows the snapshot age and the time spent fetching the upstream response.
+
+Network errors, `429` responses, and `5xx` responses are retried up to two additional times with a short backoff. If all attempts fail, or DraftKings returns data the client cannot parse, the last successful snapshot remains available and the UI marks it as stale.
 
 ## Why this approach
 
@@ -65,7 +67,7 @@ The frontend uses plain HTML, CSS, and Alpine.js. That keeps the page small whil
 
 ## Freshness
 
-With `REFRESH_INTERVAL=5`, the displayed odds are normally no more than about five seconds old, plus the time required for the DraftKings request and the browser request. This is polling rather than a true streaming connection, since the endpoint does not provide a public source-change timestamp or a documented fixed rate limit.
+With `REFRESH_INTERVAL=5`, the displayed odds are normally no more than about five seconds old, plus the time required for the DraftKings request and the browser request. The page displays the age of the current snapshot and the upstream fetch duration. This is polling rather than a true streaming connection, since the endpoint does not provide a public source-change timestamp or a documented fixed rate limit.
 
 One running instance makes approximately twelve upstream requests per minute at a five-second interval. Visitors do not each create their own DraftKings request because they share the server-side snapshot.
 

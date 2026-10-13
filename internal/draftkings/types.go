@@ -3,11 +3,12 @@ package draftkings
 import "time"
 
 type Snapshot struct {
-	Games        []Game    `json:"games"`
-	FetchedAt    time.Time `json:"fetchedAt"`
-	Stale        bool      `json:"stale"`
-	Error        string    `json:"error,omitempty"`
-	SourceStatus int       `json:"sourceStatus,omitempty"`
+	Games           []Game    `json:"games"`
+	FetchedAt       time.Time `json:"fetchedAt"`
+	FetchDurationMS int64     `json:"fetchDurationMs,omitempty"`
+	Stale           bool      `json:"stale"`
+	Error           string    `json:"error,omitempty"`
+	SourceStatus    int       `json:"sourceStatus,omitempty"`
 }
 
 type Game struct {
@@ -21,10 +22,13 @@ type Game struct {
 }
 
 type Price struct {
-	Side  string   `json:"side"`
-	Label string   `json:"label"`
-	Line  *float64 `json:"line,omitempty"`
-	Odds  string   `json:"odds"`
+	Side         string   `json:"side"`
+	Label        string   `json:"label"`
+	Line         *float64 `json:"line,omitempty"`
+	Odds         string   `json:"odds"`
+	PreviousLine *float64 `json:"previousLine,omitempty"`
+	PreviousOdds string   `json:"previousOdds,omitempty"`
+	Changed      bool     `json:"changed,omitempty"`
 }
 
 type rawResponse struct {

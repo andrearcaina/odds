@@ -2,12 +2,15 @@ window.oddsApp = function () {
     return {
         loading: false,
         timer: null,
+        clockTimer: null,
+        now: Date.now(),
         data: { games: [], stale: true, error: "" },
 
         init() {
             this.load();
             const interval = Number(document.body.dataset.refreshIntervalMs);
             this.timer = setInterval(() => this.load(), interval);
+            this.clockTimer = setInterval(() => (this.now = Date.now()), 1000);
         },
 
         async load(manualRefresh = false) {
@@ -54,6 +57,20 @@ window.oddsApp = function () {
 
         signed(value) {
             return value == null ? "" : (value > 0 ? "+" : "") + value;
+        },
+
+        previousPrice(price) {
+            if (!price.changed) return "";
+
+            const line = price.previousLine == null ? "" : ` ${this.signed(price.previousLine)}`;
+            return `was ${price.previousOdds}${line}`;
+        },
+
+        snapshotAge() {
+            if (!this.data.fetchedAt) return "";
+
+            const age = Math.max(0, Math.floor((this.now - new Date(this.data.fetchedAt).getTime()) / 1000));
+            return `${age}s old`;
         },
     };
 };

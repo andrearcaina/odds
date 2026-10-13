@@ -20,6 +20,13 @@ type Client struct {
 	refreshGroup singleflight.Group
 }
 
+const maxAttempts = 3
+
+var retryDelays = []time.Duration{
+	250 * time.Millisecond,
+	500 * time.Millisecond,
+}
+
 func NewClient(url string, interval, timeout time.Duration, logger *logger.Logger) *Client {
 	return &Client{
 		url:      url,
@@ -62,17 +69,34 @@ func (c *Client) refresh(ctx context.Context) {
 }
 
 func (c *Client) refreshUpstream(ctx context.Context) {
+	startedAt := time.Now()
 	var payload rawResponse
-	response, err := c.client.R().
-		SetContext(ctx).
-		SetHeaders(map[string]string{
-			"Accept":     "application/json",
-			"Referer":    "https://sportsbook.draftkings.com/",
-			"Origin":     "https://sportsbook.draftkings.com",
-			"User-Agent": "draftkings-nfl-odds/1.0",
-		}).
-		SetResult(&payload).
-		Get(c.url)
+	var response *resty.Response
+	var err error
+
+	for attempt := 1; attempt <= maxAttempts; attempt++ {
+		payload = rawResponse{}
+		response, err = c.client.R().
+			SetContext(ctx).
+			SetHeaders(map[string]string{
+				"Accept":     "application/json",
+				"Referer":    "https://sportsbook.draftkings.com/",
+				"Origin":     "https://sportsbook.draftkings.com",
+				"User-Agent": "draftkings-nfl-odds/1.0",
+			}).
+			SetResult(&payload).
+			Get(c.url)
+
+		if !shouldRetry(response, err) || attempt == maxAttempts {
+			break
+		}
+
+		c.logger.Warn(ctx, "odds refresh retrying", "attempt", attempt+1, "max_attempts", maxAttempts)
+		if !waitBeforeRetry(ctx, retryDelays[attempt-1]) {
+			return
+		}
+	}
+
 	if err != nil {
 		c.fail(0, err)
 		return
@@ -86,14 +110,40 @@ func (c *Client) refreshUpstream(ctx context.Context) {
 		c.fail(response.StatusCode(), fmt.Errorf("upstream returned HTTP %d: %s", response.StatusCode(), body))
 		return
 	}
+
 	games, err := normalize(payload)
 	if err != nil {
 		c.fail(response.StatusCode(), err)
 		return
 	}
 
-	c.cache.Store(games, response.StatusCode())
-	c.logger.Info(ctx, "odds refreshed", "games", len(games))
+	fetchDuration := time.Since(startedAt)
+	c.cache.Store(games, response.StatusCode(), fetchDuration)
+	c.logger.Info(ctx, "odds refreshed", "games", len(games), "fetch_duration_ms", fetchDuration.Milliseconds())
+}
+
+func shouldRetry(response *resty.Response, err error) bool {
+	if err != nil {
+		return true
+	}
+	if response == nil {
+		return false
+	}
+
+	status := response.StatusCode()
+	return status == 429 || status >= 500
+}
+
+func waitBeforeRetry(ctx context.Context, delay time.Duration) bool {
+	timer := time.NewTimer(delay)
+	defer timer.Stop()
+
+	select {
+	case <-ctx.Done():
+		return false
+	case <-timer.C:
+		return true
+	}
 }
 
 func (c *Client) fail(status int, err error) {

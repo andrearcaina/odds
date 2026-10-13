@@ -53,6 +53,11 @@
                 <span
                     x-text="data.fetchedAt ? 'Updated ' + formatTime(data.fetchedAt) : 'Waiting for data'"
                 ></span>
+                <span x-show="data.fetchedAt" x-text="snapshotAge()"></span>
+                <span
+                    x-show="data.fetchDurationMs"
+                    x-text="'DraftKings fetch ' + data.fetchDurationMs + 'ms'"
+                ></span>
                 <span x-show="data.error" x-text="data.error"></span>
             </div>
             <div class="card" style="margin-top: 20px">
@@ -75,38 +80,50 @@
                                         x-text="formatTime(game.startTime)"
                                     ></div>
                                 </td>
-                                <td>
-                                    <template x-for="price in game.moneyline"
-                                        ><span class="price"
+                                        <td>
+                                            <template x-for="price in game.moneyline"
+                                        ><span class="price" :class="{'changed': price.changed}"
                                             ><span x-text="price.label"></span>
                                             <span
                                                 class="line"
                                                 x-text="price.odds"
-                                            ></span></span
+                                            ></span><small
+                                                class="previous"
+                                                x-show="price.changed"
+                                                x-text="previousPrice(price)"
+                                            ></small></span
                                     ></template>
                                 </td>
                                 <td>
                                     <template x-for="price in game.spread"
-                                        ><span class="price"
+                                        ><span class="price" :class="{'changed': price.changed}"
                                             ><span
                                                 x-text="price.label + ' ' + signed(price.line)"
                                             ></span>
                                             <span
                                                 class="line"
                                                 x-text="price.odds"
-                                            ></span></span
+                                            ></span><small
+                                                class="previous"
+                                                x-show="price.changed"
+                                                x-text="previousPrice(price)"
+                                            ></small></span
                                     ></template>
                                 </td>
                                 <td>
                                     <template x-for="price in game.total"
-                                        ><span class="price"
+                                        ><span class="price" :class="{'changed': price.changed}"
                                             ><span
                                                 x-text="price.label + ' ' + price.line"
                                             ></span>
                                             <span
                                                 class="line"
                                                 x-text="price.odds"
-                                            ></span></span
+                                            ></span><small
+                                                class="previous"
+                                                x-show="price.changed"
+                                                x-text="previousPrice(price)"
+                                            ></small></span
                                     ></template>
                                 </td>
                             </tr>

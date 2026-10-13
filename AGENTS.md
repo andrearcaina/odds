@@ -14,7 +14,7 @@ The application is limited to:
 
 Player props, alternate lines, and other leagues are outside the current scope.
 
-The page should make it clear when the data is stale. Line movement and detailed latency reporting are optional improvements, not requirements for the basic version.
+The page should make it clear when the data is stale. It currently highlights prices that changed since the previous successful snapshot and displays snapshot age and upstream fetch duration.
 
 ## Project layout
 
@@ -54,6 +54,7 @@ Local configuration belongs in `.env`, which is ignored by Git. Keep `.env.examp
 - Preserve the last successful snapshot and mark it stale when a refresh fails.
 - Keep DraftKings polling centralized in the client.
 - Keep caching and request coalescing in the DraftKings client rather than in HTTP handlers.
+- Retry network errors, `429` responses, and `5xx` responses with a bounded backoff.
 - Update tests when the DraftKings response mapping changes.
 - Prefer small, focused changes over introducing unnecessary dependencies or frontend infrastructure.
 
