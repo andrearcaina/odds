@@ -9,6 +9,17 @@ window.oddsApp = function () {
         init() {
             this.load();
             this.clockTimer = setInterval(() => (this.now = Date.now()), 1000);
+            document.addEventListener("visibilitychange", () =>
+                this.refreshWhenVisible(),
+            );
+            window.addEventListener("focus", () => this.refreshWhenVisible());
+        },
+
+        refreshWhenVisible() {
+            if (document.hidden) return;
+
+            clearTimeout(this.timer);
+            this.load();
         },
 
         scheduleNextLoad() {
@@ -72,13 +83,21 @@ window.oddsApp = function () {
         },
 
         previousPrice(price) {
-            if (!price.changed) return "";
+            if (!price.previousOdds) return "";
 
             const line =
                 price.previousLine == null
                     ? ""
                     : ` ${this.signed(price.previousLine)}`;
             return `was ${price.previousOdds}${line}`;
+        },
+
+        isStale() {
+            if (this.data.stale || !this.data.fetchedAt) return true;
+
+            const interval = Number(document.body.dataset.refreshIntervalMs);
+            const age = this.now - new Date(this.data.fetchedAt).getTime();
+            return age > interval + 1000;
         },
 
         snapshotAge() {

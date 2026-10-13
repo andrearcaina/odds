@@ -56,6 +56,21 @@ func TestSnapshotCacheTracksPriceChanges(t *testing.T) {
 	if price.PreviousLine == nil || *price.PreviousLine != oldLine {
 		t.Fatalf("previous line = %v, want %v", price.PreviousLine, oldLine)
 	}
+
+	cache.Store([]Game{{
+		ID: "game-1",
+		Spread: []Price{{
+			Side:  "Away",
+			Label: "BUF Bills",
+			Line:  &newLine,
+			Odds:  "-115",
+		}},
+	}}, 200, 130*time.Millisecond)
+
+	price = cache.Snapshot().Games[0].Spread[0]
+	if price.PreviousOdds != "-110" || price.Changed {
+		t.Fatal("expected previous price to remain visible without a new movement highlight")
+	}
 }
 
 func TestSnapshotCachePreservesDataWhenStale(t *testing.T) {

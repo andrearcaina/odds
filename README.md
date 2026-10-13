@@ -18,19 +18,18 @@ Create a local environment file:
 cp .env.example .env
 ```
 
-Set the DraftKings league endpoint in `.env`:
+The DraftKings endpoint is public and does not contain credentials. It is included in `.env.example` for convenience, but it is specific to the Ontario sportsbook and may need to be changed for another location. The `REFRESH_INTERVAL` and `HTTP_TIMEOUT` values are also configurable.
 
-```env
-PORT=8080
-REFRESH_INTERVAL=5
-HTTP_TIMEOUT=10
-DRAFTKINGS_URL=<DraftKings NFL league endpoint>
-```
-
-The interval and timeout values are in seconds. Start the application with:
+To start the application, run:
 
 ```sh
 make run
+```
+
+Or run the server directly:
+
+```sh
+go run ./cmd/server
 ```
 
 Then open <http://localhost:8080>.

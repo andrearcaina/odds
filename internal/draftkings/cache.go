@@ -88,6 +88,8 @@ func annotatePrice(gameID, market string, current *Price, previousPrices map[str
 	}
 
 	if previous.Odds == current.Odds && sameLine(previous.Line, current.Line) {
+		current.PreviousOdds = previous.PreviousOdds
+		current.PreviousLine = previous.PreviousLine
 		return
 	}
 

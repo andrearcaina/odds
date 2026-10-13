@@ -46,8 +46,8 @@
             <div class="meta">
                 <span
                     class="pill"
-                    :class="data.stale ? 'stale' : 'ok'"
-                    x-text="data.stale ? 'Stale data' : 'Live snapshot'"
+                    :class="isStale() ? 'stale' : 'ok'"
+                    x-text="isStale() ? 'Stale data' : 'Live snapshot'"
                     >Stale data</span
                 >
                 <span
@@ -80,48 +80,57 @@
                                         x-text="formatTime(game.startTime)"
                                     ></div>
                                 </td>
-                                        <td>
-                                            <template x-for="price in game.moneyline"
-                                        ><span class="price" :class="{'changed': price.changed}"
+                                <td>
+                                    <template x-for="price in game.moneyline"
+                                        ><span
+                                            class="price"
+                                            :class="{'changed': price.changed}"
                                             ><span x-text="price.label"></span>
                                             <span
                                                 class="line"
                                                 x-text="price.odds"
-                                            ></span><small
+                                            ></span
+                                            ><small
                                                 class="previous"
-                                                x-show="price.changed"
+                                                x-show="price.previousOdds"
                                                 x-text="previousPrice(price)"
                                             ></small></span
                                     ></template>
                                 </td>
                                 <td>
                                     <template x-for="price in game.spread"
-                                        ><span class="price" :class="{'changed': price.changed}"
+                                        ><span
+                                            class="price"
+                                            :class="{'changed': price.changed}"
                                             ><span
                                                 x-text="price.label + ' ' + signed(price.line)"
                                             ></span>
                                             <span
                                                 class="line"
                                                 x-text="price.odds"
-                                            ></span><small
+                                            ></span
+                                            ><small
                                                 class="previous"
-                                                x-show="price.changed"
+                                                x-show="price.previousOdds"
                                                 x-text="previousPrice(price)"
                                             ></small></span
                                     ></template>
                                 </td>
                                 <td>
                                     <template x-for="price in game.total"
-                                        ><span class="price" :class="{'changed': price.changed}"
+                                        ><span
+                                            class="price"
+                                            :class="{'changed': price.changed}"
                                             ><span
                                                 x-text="price.label + ' ' + price.line"
                                             ></span>
                                             <span
                                                 class="line"
                                                 x-text="price.odds"
-                                            ></span><small
+                                            ></span
+                                            ><small
                                                 class="previous"
-                                                x-show="price.changed"
+                                                x-show="price.previousOdds"
                                                 x-text="previousPrice(price)"
                                             ></small></span
                                     ></template>
@@ -132,7 +141,7 @@
                             <td
                                 colspan="4"
                                 class="empty"
-                                x-text="data.stale ? 'No current NFL odds are available.' : 'No upcoming NFL odds are available right now.'"
+                                x-text="isStale() ? 'No current NFL odds are available.' : 'No upcoming NFL odds are available right now.'"
                             >
                                 Loading NFL odds…
                             </td>
