@@ -50,7 +50,7 @@ The `Dockerfile` is for the production image only. Local development should use 
 - Do not hard-code DraftKings cookies, tokens, or session state.
 - Treat `403`, `429`, timeouts, malformed JSON, empty responses, and schema changes as feed failures. Preserve the last successful snapshot and mark it stale when a refresh ultimately fails.
 - Keep DraftKings polling centralized in the client.
-- Keep caching and request coalescing in the DraftKings client rather than in HTTP handlers.
+- Keep caching in the DraftKings client rather than in HTTP handlers.
 - Retry only transient network errors, `429` responses, and `5xx` responses with a bounded backoff. Do not retry `403` responses or invalid payloads.
 - Update tests when the DraftKings response mapping changes.
 - Prefer small, focused changes over introducing unnecessary dependencies or frontend infrastructure.

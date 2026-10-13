@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/andrearcaina/draftkings-odds/internal/logger"
-	"golang.org/x/sync/singleflight"
 	"resty.dev/v3"
 )
 
@@ -16,8 +15,7 @@ type Client struct {
 	client   *resty.Client
 	logger   *logger.Logger
 
-	cache        *snapshotCache
-	refreshGroup singleflight.Group
+	cache *snapshotCache
 }
 
 const maxAttempts = 3
@@ -58,10 +56,7 @@ func (c *Client) Snapshot() Snapshot {
 }
 
 func (c *Client) refresh(ctx context.Context) {
-	_, _, _ = c.refreshGroup.Do("latest", func() (any, error) {
-		c.refreshUpstream(ctx)
-		return nil, nil
-	})
+	c.refreshUpstream(ctx)
 }
 
 func (c *Client) refreshUpstream(ctx context.Context) {
