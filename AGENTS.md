@@ -2,7 +2,7 @@
 
 ## Project overview
 
-This is a small Go monolith for displaying normalized NFL odds from DraftKings Ontario. The server embeds and serves a lightweight HTML, CSS, and Alpine.js frontend.
+This is a small Go monolith for displaying normalized NFL odds from DraftKings. The server embeds and serves a lightweight HTML, CSS, and Alpine.js frontend.
 
 ## Scope
 

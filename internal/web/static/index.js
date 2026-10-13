@@ -24,12 +24,9 @@ window.oddsApp = function () {
 
         scheduleNextLoad() {
             const interval = Number(document.body.dataset.refreshIntervalMs);
-            let delay = interval;
-
-            if (this.data.fetchedAt) {
-                const age = this.now - new Date(this.data.fetchedAt).getTime();
-                delay = Math.max(1000, interval - age);
-            }
+            // Keep failed and stale snapshots on the same polling cadence. A
+            // missing timestamp must not turn into a one-second retry loop.
+            const delay = Math.max(interval, 1000);
 
             clearTimeout(this.timer);
             this.timer = setTimeout(() => this.load(), delay);
@@ -97,7 +94,7 @@ window.oddsApp = function () {
 
             const interval = Number(document.body.dataset.refreshIntervalMs);
             const age = this.now - new Date(this.data.fetchedAt).getTime();
-            return age > interval + 1000;
+            return age > interval * 2;
         },
 
         snapshotAge() {

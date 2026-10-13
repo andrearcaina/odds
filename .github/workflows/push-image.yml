@@ -79,3 +79,8 @@ jobs:
                       ${{ env.IMAGE_NAME }}:latest
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
+
+            - name: Deploy to Render
+              env:
+                  RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+              run: curl --fail --show-error --silent --retry 3 -X POST "$RENDER_DEPLOY_HOOK"

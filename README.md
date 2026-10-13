@@ -1,6 +1,6 @@
 # DraftKings NFL Odds
 
-A small Go application that fetches NFL odds from DraftKings Ontario and displays them in a browser.
+A small Go application that fetches NFL odds from DraftKings and displays them in a browser.
 
 The app currently shows the main markets for upcoming NFL games:
 
@@ -18,7 +18,7 @@ Create a local environment file:
 cp .env.example .env
 ```
 
-The DraftKings endpoint is public and does not contain credentials. It is included in `.env.example` for convenience, but it is specific to the Ontario sportsbook and may need to be changed for another location. The `REFRESH_INTERVAL` and `HTTP_TIMEOUT` values are also configurable.
+Set `DRAFTKINGS_URL` in `.env` to the public DraftKings feed you want to use. It does not contain credentials. The `REFRESH_INTERVAL` and `HTTP_TIMEOUT` values are also configurable.
 
 To start the application, run:
 
@@ -75,7 +75,7 @@ The frontend uses plain HTML, CSS, and Alpine.js. That keeps the page small whil
 
 ## Freshness
 
-With `REFRESH_INTERVAL=5`, the displayed odds are normally no more than about five seconds old, plus request time. The page shows the snapshot age and upstream fetch duration. Five seconds is a practical middle ground: the odds stay fresh while one instance makes about twelve upstream requests per minute instead of constantly requesting DraftKings. The interval can be changed, and request coalescing prevents several users refreshing at the same time from creating identical requests.
+With `REFRESH_INTERVAL=5`, the displayed odds are normally no more than about five seconds old, plus request time. The page shows the snapshot age and upstream fetch duration, and marks the snapshot stale after two polling intervals. Five seconds is a practical middle ground: the odds stay fresh while one instance makes about twelve upstream requests per minute instead of constantly requesting DraftKings. The interval can be changed, and request coalescing prevents several users refreshing at the same time from creating identical requests.
 
 This is polling rather than a true streaming connection, since the endpoint does not provide a public source-change timestamp or a documented fixed rate limit.
 
