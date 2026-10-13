@@ -12,6 +12,8 @@ FROM gcr.io/distroless/static-debian12:nonroot
 
 COPY --from=build /out/odds /odds
 
+LABEL org.opencontainers.image.title="DraftKings NFL odds"
+
 ENV PORT=8080
 EXPOSE 8080
 
