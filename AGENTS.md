@@ -55,6 +55,8 @@ Keep CI focused on formatting, dependencies, tests, vetting, and building. Do no
 
 The `Dockerfile` is for the production image only. Local development should use Go and the Makefile directly.
 
+The `push-image.yml` workflow publishes the production image to GHCR only after CI succeeds on `main`.
+
 ## Implementation guidelines
 
 - Keep the runtime deterministic. Do not add an AI or agent framework to the application.
