@@ -141,7 +141,7 @@
                             <td
                                 colspan="4"
                                 class="empty"
-                                x-text="isStale() ? 'No current NFL odds are available.' : 'No upcoming NFL odds are available right now.'"
+                                x-text="hasSnapshot() ? 'No upcoming NFL odds are available right now.' : 'Currently no NFL odds data is available.'"
                             >
                                 Loading NFL odds…
                             </td>
